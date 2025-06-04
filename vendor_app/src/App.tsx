@@ -1,15 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '../public/vite.svg'
 import { TextField, Button, Container, Typography, Box } from '@mui/material'
 import './App.css'
+import { DefaultApi, Configuration } from './api'
+import type { Item, ItemCreate } from './api'
 
-interface Item {
-    id?: number;
-    name: string;
-    description: string;
-    price: number;
-}
+const api = new DefaultApi(new Configuration({
+    basePath: 'http://localhost:8080'
+}));
 
 function App() {
     return (
@@ -33,35 +32,36 @@ function App() {
 }
 
 function ItemForm() {
-    const [formData, setFormData] = useState<Item>({
+    const [formData, setFormData] = useState<ItemCreate>({
         name: '',
         description: '',
         price: 0
     });
     const [items, setItems] = useState<Item[]>([]);
 
+    useEffect(() => {
+        loadItems();
+    }, []);
+
+    const loadItems = async () => {
+        try {
+            const response = await api.getAllItems();
+            setItems(response);
+        } catch (error) {
+            console.error('Error loading items:', error);
+        }
+    };
+
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            const response = await fetch('http://localhost:8080/api/items', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
+            const newItem = await api.createItem({ itemCreate: formData });
+            setItems([...items, newItem]);
+            setFormData({
+                name: '',
+                description: '',
+                price: 0
             });
-
-            if (response.ok) {
-                const newItem = await response.json();
-                setItems([...items, newItem]);
-                setFormData({
-                    name: '',
-                    description: '',
-                    price: 0
-                });
-            } else {
-                console.error('Failed to create item');
-            }
         } catch (error) {
             console.error('Error creating item:', error);
         }
@@ -120,8 +120,8 @@ function ItemForm() {
                 <Typography variant="h6" gutterBottom>
                     Items List
                 </Typography>
-                {items.map((item, index) => (
-                    <Box key={item.id || index} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
+                {items.map((item) => (
+                    <Box key={item.id} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
                         <Typography variant="subtitle1">
                             {item.name}
                         </Typography>
