@@ -41,8 +41,10 @@ class ItemValidationTest {
         item.setPrice(10.99);
 
         Set<ConstraintViolation<Item>> violations = validator.validate(item);
-        assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("name");
+        assertThat(violations)
+            .hasSize(1)
+            .extracting(violation -> violation.getPropertyPath().toString())
+            .containsExactly("name");
     }
 
     @Test
@@ -51,8 +53,10 @@ class ItemValidationTest {
         item.setDescription("Restores 50 HP");
 
         Set<ConstraintViolation<Item>> violations = validator.validate(item);
-        assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("price");
+        assertThat(violations)
+            .hasSize(1)
+            .extracting(violation -> violation.getPropertyPath().toString())
+            .containsExactly("price");
     }
 
     @Test
@@ -62,8 +66,10 @@ class ItemValidationTest {
         item.setPrice(-10.99);
 
         Set<ConstraintViolation<Item>> violations = validator.validate(item);
-        assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("price");
+        assertThat(violations)
+            .hasSize(1)
+            .extracting(violation -> violation.getPropertyPath().toString())
+            .containsExactly("price");
     }
 
     @Test
@@ -87,7 +93,9 @@ class ItemValidationTest {
         Set<ConstraintViolation<Item>> violations = validator.validate(item);
 
         // Then
-        assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("name");
+        assertThat(violations)
+            .hasSize(1)
+            .extracting(violation -> violation.getPropertyPath().toString())
+            .containsExactly("name");
     }
 } 
