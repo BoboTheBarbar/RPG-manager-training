@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.math.BigDecimal;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,50 +16,71 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ItemValidationTest {
 
     private Validator validator;
+    private Item item;
 
     @BeforeEach
     void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
+        item = new Item();
     }
 
     @Test
-    void createValidItem_shouldPassValidation() {
-        // Given
-        Item item = new Item();
+    void whenAllFieldsAreValid_thenNoViolations() {
         item.setName("Health Potion");
-        item.setPrice(BigDecimal.valueOf(10.99));
         item.setDescription("Restores 50 HP");
+        item.setPrice(10.99);
 
-        // When
         Set<ConstraintViolation<Item>> violations = validator.validate(item);
-
-        // Then
         assertThat(violations).isEmpty();
     }
 
     @Test
-    void createItemWithNullName_shouldFailValidation() {
-        // Given
-        Item item = new Item();
-        item.setPrice(BigDecimal.valueOf(10.99));
+    void whenNameIsNull_thenViolation() {
         item.setDescription("Restores 50 HP");
+        item.setPrice(10.99);
 
-        // When
         Set<ConstraintViolation<Item>> violations = validator.validate(item);
-
-        // Then
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("name");
+    }
+
+    @Test
+    void whenPriceIsNull_thenViolation() {
+        item.setName("Health Potion");
+        item.setDescription("Restores 50 HP");
+
+        Set<ConstraintViolation<Item>> violations = validator.validate(item);
+        assertThat(violations).hasSize(1);
+        assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("price");
+    }
+
+    @Test
+    void whenPriceIsNegative_thenViolation() {
+        item.setName("Health Potion");
+        item.setDescription("Restores 50 HP");
+        item.setPrice(-10.99);
+
+        Set<ConstraintViolation<Item>> violations = validator.validate(item);
+        assertThat(violations).hasSize(1);
+        assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("price");
+    }
+
+    @Test
+    void whenDescriptionIsOptional_thenNoViolations() {
+        item.setName("Health Potion");
+        item.setPrice(10.99);
+
+        Set<ConstraintViolation<Item>> violations = validator.validate(item);
+        assertThat(violations).isEmpty();
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"", " ", "   "})
     void createItemWithBlankName_shouldFailValidation(String blankName) {
         // Given
-        Item item = new Item();
         item.setName(blankName);
-        item.setPrice(BigDecimal.valueOf(10.99));
+        item.setPrice(10.99);
         item.setDescription("Restores 50 HP");
 
         // When
@@ -69,50 +89,5 @@ class ItemValidationTest {
         // Then
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("name");
-    }
-
-    @Test
-    void createItemWithNullPrice_shouldFailValidation() {
-        // Given
-        Item item = new Item();
-        item.setName("Health Potion");
-        item.setDescription("Restores 50 HP");
-
-        // When
-        Set<ConstraintViolation<Item>> violations = validator.validate(item);
-
-        // Then
-        assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("price");
-    }
-
-    @Test
-    void createItemWithNegativePrice_shouldFailValidation() {
-        // Given
-        Item item = new Item();
-        item.setName("Health Potion");
-        item.setPrice(BigDecimal.valueOf(-10.99));
-        item.setDescription("Restores 50 HP");
-
-        // When
-        Set<ConstraintViolation<Item>> violations = validator.validate(item);
-
-        // Then
-        assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getPropertyPath().toString()).isEqualTo("price");
-    }
-
-    @Test
-    void createItemWithNullDescription_shouldPassValidation() {
-        // Given
-        Item item = new Item();
-        item.setName("Health Potion");
-        item.setPrice(BigDecimal.valueOf(10.99));
-
-        // When
-        Set<ConstraintViolation<Item>> violations = validator.validate(item);
-
-        // Then
-        assertThat(violations).isEmpty();
     }
 } 

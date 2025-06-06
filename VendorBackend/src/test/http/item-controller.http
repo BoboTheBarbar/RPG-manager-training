@@ -1,0 +1,18 @@
+### Create a new item
+POST http://localhost:8080/api/items
+Content-Type: application/json
+
+{
+  "name": "Test Item",
+  "description": "This is a test item",
+  "price": 99.99
+}
+
+### Get all items
+GET http://localhost:8080/api/items
+
+### Get item by ID
+GET http://localhost:8080/api/items/1
+
+### Get non-existent item
+GET http://localhost:8080/api/items/999

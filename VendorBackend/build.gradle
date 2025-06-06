@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.3'
     id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.openapi.generator' version '7.3.0'
 }
 
 group = 'de.vendor'
@@ -12,6 +13,7 @@ java {
         languageVersion = JavaLanguageVersion.of(21)
         vendor = JvmVendorSpec.ORACLE
     }
+    sourceCompatibility = '17'
 }
 
 configurations {
@@ -28,6 +30,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
     
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -62,3 +65,35 @@ tasks.withType(JavaExec).configureEach {
 tasks.withType(JavaCompile).configureEach {
     it.options.release = 21
 }
+
+springBoot {
+    mainClass = 'de.vendor.VendorApplication'
+}
+
+openApiGenerate {
+    generatorName = "spring"
+    inputSpec = "$projectDir/src/main/resources/api-spec.yaml"
+    outputDir = "$buildDir/generated"
+    apiPackage = "de.vendor.item.api"
+    modelPackage = "de.vendor.item.model"
+    configOptions = [
+        dateLibrary: "java8",
+        interfaceOnly: "true",
+        skipDefaultInterface: "true",
+        useSpringBoot3: "true",
+        useJakartaEe: "true",
+        openApiNullable: "false"
+    ]
+}
+
+// Add generated sources to main source set
+sourceSets {
+    main {
+        java {
+            srcDir "${buildDir}/generated/src/main/java"
+        }
+    }
+}
+
+// Make sure the OpenAPI code is generated before compilation
+compileJava.dependsOn('openApiGenerate')

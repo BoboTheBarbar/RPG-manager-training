@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
-import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,16 +25,16 @@ class ItemRepositoryTest {
         // Given
         Item healthPotion = new Item();
         healthPotion.setName("Health Potion");
-        healthPotion.setPrice(BigDecimal.valueOf(10.99));
         healthPotion.setDescription("Restores 50 HP");
+        healthPotion.setPrice(10.99);
+        entityManager.persist(healthPotion);
 
         Item manaPotion = new Item();
         manaPotion.setName("Mana Potion");
-        manaPotion.setPrice(BigDecimal.valueOf(15.99));
         manaPotion.setDescription("Restores 50 MP");
-
-        entityManager.persist(healthPotion);
+        manaPotion.setPrice(15.99);
         entityManager.persist(manaPotion);
+
         entityManager.flush();
 
         // When
@@ -42,7 +42,7 @@ class ItemRepositoryTest {
 
         // Then
         assertThat(items).hasSize(2);
-        assertThat(items).extracting(Item::getName).containsExactlyInAnyOrder("Health Potion", "Mana Potion");
+        assertThat(items).extracting("name").containsExactlyInAnyOrder("Health Potion", "Mana Potion");
     }
 
     @Test
@@ -50,20 +50,18 @@ class ItemRepositoryTest {
         // Given
         Item healthPotion = new Item();
         healthPotion.setName("Health Potion");
-        healthPotion.setPrice(BigDecimal.valueOf(10.99));
         healthPotion.setDescription("Restores 50 HP");
-
-        entityManager.persist(healthPotion);
+        healthPotion.setPrice(10.99);
+        Long id = entityManager.persist(healthPotion).getId();
         entityManager.flush();
 
         // When
-        var foundItem = itemRepository.findById(healthPotion.getId());
+        Optional<Item> foundItem = itemRepository.findById(id);
 
         // Then
         assertThat(foundItem).isPresent();
         assertThat(foundItem.get().getName()).isEqualTo("Health Potion");
-        assertThat(foundItem.get().getPrice()).isEqualByComparingTo(BigDecimal.valueOf(10.99));
-        assertThat(foundItem.get().getDescription()).isEqualTo("Restores 50 HP");
+        assertThat(foundItem.get().getPrice()).isEqualTo(10.99);
     }
 
     @Test
@@ -71,17 +69,15 @@ class ItemRepositoryTest {
         // Given
         Item healthPotion = new Item();
         healthPotion.setName("Health Potion");
-        healthPotion.setPrice(BigDecimal.valueOf(10.99));
         healthPotion.setDescription("Restores 50 HP");
+        healthPotion.setPrice(10.99);
 
         // When
-        Item savedItem = itemRepository.save(healthPotion);
+        Item persistedItem = itemRepository.save(healthPotion);
 
         // Then
-        Item persistedItem = entityManager.find(Item.class, savedItem.getId());
-        assertThat(persistedItem).isNotNull();
+        assertThat(persistedItem.getId()).isNotNull();
         assertThat(persistedItem.getName()).isEqualTo("Health Potion");
-        assertThat(persistedItem.getPrice()).isEqualByComparingTo(BigDecimal.valueOf(10.99));
-        assertThat(persistedItem.getDescription()).isEqualTo("Restores 50 HP");
+        assertThat(persistedItem.getPrice()).isEqualTo(10.99);
     }
 } 

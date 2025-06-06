@@ -1,20 +1,27 @@
 openapi: 3.0.3
 info:
-  title: Vendor Management API
-  description: API for managing vendor items
+  title: Items API
   version: 1.0.0
+  description: API for managing items
+
 servers:
   - url: http://localhost:8080
     description: Local development server
 
+tags:
+  - name: items
+    description: Operations about items
+
 paths:
   /api/items:
     get:
+      tags:
+        - items
       summary: Get all items
       operationId: getAllItems
       responses:
         '200':
-          description: List of items retrieved successfully
+          description: List of items
           content:
             application/json:
               schema:
@@ -22,6 +29,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/Item'
     post:
+      tags:
+        - items
       summary: Create a new item
       operationId: createItem
       requestBody:
@@ -37,15 +46,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Item'
-        '400':
-          description: Invalid input
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
 
   /api/items/{id}:
     get:
+      tags:
+        - items
       summary: Get item by ID
       operationId: getItemById
       parameters:
@@ -64,10 +69,6 @@ paths:
                 $ref: '#/components/schemas/Item'
         '404':
           description: Item not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
 
 components:
   schemas:
@@ -77,22 +78,15 @@ components:
         id:
           type: integer
           format: int64
-          readOnly: true
         name:
           type: string
-          minLength: 1
-          maxLength: 100
         description:
           type: string
-          minLength: 1
-          maxLength: 500
         price:
           type: number
           format: double
-          minimum: 0
       required:
         - name
-        - description
         - price
 
     ItemCreate:
@@ -100,25 +94,11 @@ components:
       properties:
         name:
           type: string
-          minLength: 1
-          maxLength: 100
         description:
           type: string
-          minLength: 1
-          maxLength: 500
         price:
           type: number
           format: double
-          minimum: 0
       required:
         - name
-        - description
-        - price
-
-    Error:
-      type: object
-      properties:
-        message:
-          type: string
-        code:
-          type: string 
+        - price 
