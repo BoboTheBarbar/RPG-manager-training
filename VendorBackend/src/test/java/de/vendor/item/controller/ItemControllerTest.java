@@ -1,14 +1,16 @@
 package de.vendor.item.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.vendor.item.adapter.ItemAdapter;
 import de.vendor.item.api.ItemController;
-import de.vendor.item.domain.Item;
+import de.vendor.item.domain.DomainItem;
 import de.vendor.item.service.ItemService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -23,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ItemController.class)
+@Import(ItemAdapter.class)  // Importiere die echte ItemAdapter Klasse
 class ItemControllerTest {
 
     @Autowired
@@ -33,12 +36,14 @@ class ItemControllerTest {
 
     @MockBean
     private ItemService itemService;
+    
+    // ItemAdapter wird automatisch als echte Bean injiziert
 
-    private Item item;
+    private DomainItem item;
 
     @BeforeEach
     void setUp() {
-        item = new Item();
+        item = new DomainItem();
         item.setId(1L);
         item.setName("Health Potion");
         item.setDescription("Restores 50 HP");
@@ -47,7 +52,7 @@ class ItemControllerTest {
 
     @Test
     void getAllItems_ShouldReturnItems() throws Exception {
-        Item secondItem = new Item();
+        DomainItem secondItem = new DomainItem();
         secondItem.setId(2L);
         secondItem.setName("Mana Potion");
         secondItem.setDescription("Restores 50 MP");
@@ -83,18 +88,18 @@ class ItemControllerTest {
 
     @Test
     void createItem_WithValidData_ShouldReturnCreatedItem() throws Exception {
-        Item itemToCreate = new Item();
-        itemToCreate.setName("Health Potion");
-        itemToCreate.setDescription("Restores 50 HP");
-        itemToCreate.setPrice(10.99);
+        de.vendor.item.model.ItemCreate itemToCreate = new de.vendor.item.model.ItemCreate()
+                .name("Health Potion")
+                .description("Restores 50 HP")
+                .price(10.99);
 
-        Item createdItem = new Item();
+        DomainItem createdItem = new DomainItem();
         createdItem.setId(1L);
         createdItem.setName("Health Potion");
         createdItem.setDescription("Restores 50 HP");
         createdItem.setPrice(10.99);
 
-        when(itemService.createItem(any(Item.class))).thenReturn(createdItem);
+        when(itemService.createItem(any(DomainItem.class))).thenReturn(createdItem);
 
         mockMvc.perform(post("/api/items")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -103,4 +108,4 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Health Potion"));
     }
-} 
+}

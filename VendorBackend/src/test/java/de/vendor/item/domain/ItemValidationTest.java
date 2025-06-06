@@ -16,13 +16,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ItemValidationTest {
 
     private Validator validator;
-    private Item item;
+    private DomainItem item;
 
     @BeforeEach
     void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
-        item = new Item();
+        item = new DomainItem();
     }
 
     @Test
@@ -31,7 +31,7 @@ class ItemValidationTest {
         item.setDescription("Restores 50 HP");
         item.setPrice(10.99);
 
-        Set<ConstraintViolation<Item>> violations = validator.validate(item);
+        Set<ConstraintViolation<DomainItem>> violations = validator.validate(item);
         assertThat(violations).isEmpty();
     }
 
@@ -40,7 +40,7 @@ class ItemValidationTest {
         item.setDescription("Restores 50 HP");
         item.setPrice(10.99);
 
-        Set<ConstraintViolation<Item>> violations = validator.validate(item);
+        Set<ConstraintViolation<DomainItem>> violations = validator.validate(item);
         assertThat(violations)
             .hasSize(1)
             .extracting(violation -> violation.getPropertyPath().toString())
@@ -52,7 +52,7 @@ class ItemValidationTest {
         item.setName("Health Potion");
         item.setDescription("Restores 50 HP");
 
-        Set<ConstraintViolation<Item>> violations = validator.validate(item);
+        Set<ConstraintViolation<DomainItem>> violations = validator.validate(item);
         assertThat(violations)
             .hasSize(1)
             .extracting(violation -> violation.getPropertyPath().toString())
@@ -65,7 +65,7 @@ class ItemValidationTest {
         item.setDescription("Restores 50 HP");
         item.setPrice(-10.99);
 
-        Set<ConstraintViolation<Item>> violations = validator.validate(item);
+        Set<ConstraintViolation<DomainItem>> violations = validator.validate(item);
         assertThat(violations)
             .hasSize(1)
             .extracting(violation -> violation.getPropertyPath().toString())
@@ -77,7 +77,7 @@ class ItemValidationTest {
         item.setName("Health Potion");
         item.setPrice(10.99);
 
-        Set<ConstraintViolation<Item>> violations = validator.validate(item);
+        Set<ConstraintViolation<DomainItem>> violations = validator.validate(item);
         assertThat(violations).isEmpty();
     }
 
@@ -90,7 +90,7 @@ class ItemValidationTest {
         item.setDescription("Restores 50 HP");
 
         // When
-        Set<ConstraintViolation<Item>> violations = validator.validate(item);
+        Set<ConstraintViolation<DomainItem>> violations = validator.validate(item);
 
         // Then
         assertThat(violations)

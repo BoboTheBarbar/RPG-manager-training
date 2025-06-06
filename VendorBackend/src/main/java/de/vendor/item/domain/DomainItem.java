@@ -15,7 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Item {
+public class DomainItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

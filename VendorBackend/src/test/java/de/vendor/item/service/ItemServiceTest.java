@@ -1,6 +1,6 @@
 package de.vendor.item.service;
 
-import de.vendor.item.domain.Item;
+import de.vendor.item.domain.DomainItem;
 import de.vendor.item.repository.ItemRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,11 +26,11 @@ class ItemServiceTest {
     @InjectMocks
     private ItemService itemService;
 
-    private Item healthPotion;
+    private DomainItem healthPotion;
 
     @BeforeEach
     void setUp() {
-        healthPotion = new Item();
+        healthPotion = new DomainItem();
         healthPotion.setId(1L);
         healthPotion.setName("Health Potion");
         healthPotion.setDescription("Restores 50 HP");
@@ -40,7 +40,7 @@ class ItemServiceTest {
     @Test
     void getAllItems_shouldReturnAllItems() {
         // Given
-        Item manaPotion = new Item();
+        DomainItem manaPotion = new DomainItem();
         manaPotion.setId(2L);
         manaPotion.setName("Mana Potion");
         manaPotion.setDescription("Restores 50 MP");
@@ -49,7 +49,7 @@ class ItemServiceTest {
         when(itemRepository.findAll()).thenReturn(Arrays.asList(healthPotion, manaPotion));
 
         // When
-        List<Item> items = itemService.getAllItems();
+        List<DomainItem> items = itemService.getAllItems();
 
         // Then
         assertThat(items).hasSize(2);
@@ -62,7 +62,7 @@ class ItemServiceTest {
         when(itemRepository.findById(1L)).thenReturn(Optional.of(healthPotion));
 
         // When
-        Optional<Item> foundItem = itemService.getItemById(1L);
+        Optional<DomainItem> foundItem = itemService.getItemById(1L);
 
         // Then
         assertThat(foundItem).isPresent();
@@ -73,21 +73,21 @@ class ItemServiceTest {
     @Test
     void createItem_shouldReturnCreatedItem() {
         // Given
-        Item itemToSave = new Item();
+        DomainItem itemToSave = new DomainItem();
         itemToSave.setName("Health Potion");
         itemToSave.setDescription("Restores 50 HP");
         itemToSave.setPrice(10.99);
 
-        Item savedItem = new Item();
+        DomainItem savedItem = new DomainItem();
         savedItem.setId(1L);
         savedItem.setName("Health Potion");
         savedItem.setDescription("Restores 50 HP");
         savedItem.setPrice(10.99);
 
-        when(itemRepository.save(any(Item.class))).thenReturn(savedItem);
+        when(itemRepository.save(any(DomainItem.class))).thenReturn(savedItem);
 
         // When
-        Item createdItem = itemService.createItem(itemToSave);
+        DomainItem createdItem = itemService.createItem(itemToSave);
 
         // Then
         assertThat(createdItem.getId()).isEqualTo(1L);

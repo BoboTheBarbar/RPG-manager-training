@@ -1,6 +1,6 @@
 package de.vendor.item.service;
 
-import de.vendor.item.domain.Item;
+import de.vendor.item.domain.DomainItem;
 import de.vendor.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,16 +16,16 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
 
-    public List<Item> getAllItems() {
+    public List<DomainItem> getAllItems() {
         return itemRepository.findAll();
     }
 
-    public Optional<Item> getItemById(Long id) {
+    public Optional<DomainItem> getItemById(Long id) {
         return itemRepository.findById(id);
     }
 
     @Transactional
-    public Item createItem(Item item) {
+    public DomainItem createItem(DomainItem item) {
         return itemRepository.save(item);
     }
 } 

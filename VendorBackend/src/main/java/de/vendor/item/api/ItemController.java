@@ -1,44 +1,61 @@
 package de.vendor.item.api;
 
+import de.vendor.item.adapter.ItemAdapter;
+import de.vendor.item.domain.DomainItem;
 import de.vendor.item.model.Item;
 import de.vendor.item.model.ItemCreate;
+import de.vendor.item.service.ItemService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Optional;
 
 @RestController
 public class ItemController implements ApiApi {
-    
-    private final ConcurrentHashMap<Long, Item> items = new ConcurrentHashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(1);
+
+    private final ItemService itemService;
+    private final ItemAdapter itemAdapter;
+
+    public ItemController(ItemService itemService, ItemAdapter itemAdapter) {
+        this.itemService = itemService;
+        this.itemAdapter = itemAdapter;
+    }
 
     @Override
     public ResponseEntity<Item> createItem(ItemCreate itemCreate) {
-        Item newItem = new Item()
-            .id(idGenerator.getAndIncrement())
-            .name(itemCreate.getName())
-            .description(itemCreate.getDescription())
-            .price(itemCreate.getPrice());
+        // Konvertiere ItemCreate zu Domain-Item
+        DomainItem domainItem = itemAdapter.toDomainItem(itemCreate);
         
-        items.put(newItem.getId(), newItem);
-        return ResponseEntity.status(201).body(newItem);
+        // Speichere über den Service
+        DomainItem savedDomainItem = itemService.createItem(domainItem);
+        
+        // Konvertiere zurück zu API-Item für die Antwort
+        Item responseItem = itemAdapter.toApiItem(savedDomainItem);
+
+        return ResponseEntity.status(201).body(responseItem);
     }
 
     @Override
     public ResponseEntity<List<Item>> getAllItems() {
-        return ResponseEntity.ok(new ArrayList<>(items.values()));
+        List<DomainItem> domainItems = itemService.getAllItems();
+        List<Item> apiItems = itemAdapter.toApiItems(domainItems);
+        
+        return ResponseEntity.ok(apiItems);
     }
 
     @Override
     public ResponseEntity<Item> getItemById(Long id) {
-        Item item = items.get(id);
-        if (item == null) {
+        // Hole Domain-Item vom Service
+        Optional<DomainItem> domainItemOpt = itemService.getItemById(id);
+        
+        if (domainItemOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(item);
+        
+        // Konvertiere zu API-Item
+        Item apiItem = itemAdapter.toApiItem(domainItemOpt.get());
+        
+        return ResponseEntity.ok(apiItem);
     }
-} 
+}

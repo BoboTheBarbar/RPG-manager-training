@@ -1,6 +1,6 @@
 package de.vendor.item.repository;
 
-import de.vendor.item.domain.Item;
+import de.vendor.item.domain.DomainItem;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -23,13 +23,13 @@ class ItemRepositoryTest {
     @Test
     void findAll_shouldReturnAllItems() {
         // Given
-        Item healthPotion = new Item();
+        DomainItem healthPotion = new DomainItem();
         healthPotion.setName("Health Potion");
         healthPotion.setDescription("Restores 50 HP");
         healthPotion.setPrice(10.99);
         entityManager.persist(healthPotion);
 
-        Item manaPotion = new Item();
+        DomainItem manaPotion = new DomainItem();
         manaPotion.setName("Mana Potion");
         manaPotion.setDescription("Restores 50 MP");
         manaPotion.setPrice(15.99);
@@ -38,7 +38,7 @@ class ItemRepositoryTest {
         entityManager.flush();
 
         // When
-        List<Item> items = itemRepository.findAll();
+        List<DomainItem> items = itemRepository.findAll();
 
         // Then
         assertThat(items).hasSize(2);
@@ -48,7 +48,7 @@ class ItemRepositoryTest {
     @Test
     void findById_shouldReturnItem_whenItemExists() {
         // Given
-        Item healthPotion = new Item();
+        DomainItem healthPotion = new DomainItem();
         healthPotion.setName("Health Potion");
         healthPotion.setDescription("Restores 50 HP");
         healthPotion.setPrice(10.99);
@@ -56,7 +56,7 @@ class ItemRepositoryTest {
         entityManager.flush();
 
         // When
-        Optional<Item> foundItem = itemRepository.findById(id);
+        Optional<DomainItem> foundItem = itemRepository.findById(id);
 
         // Then
         assertThat(foundItem).isPresent();
@@ -67,13 +67,13 @@ class ItemRepositoryTest {
     @Test
     void save_shouldPersistItem() {
         // Given
-        Item healthPotion = new Item();
+        DomainItem healthPotion = new DomainItem();
         healthPotion.setName("Health Potion");
         healthPotion.setDescription("Restores 50 HP");
         healthPotion.setPrice(10.99);
 
         // When
-        Item persistedItem = itemRepository.save(healthPotion);
+        DomainItem persistedItem = itemRepository.save(healthPotion);
 
         // Then
         assertThat(persistedItem.getId()).isNotNull();
